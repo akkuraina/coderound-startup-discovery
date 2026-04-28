@@ -1,0 +1,106 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.next/
+out/
+.cache/
+dist/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Dependencies
+.pip/
+poetry.lock
+package-lock.json
+yarn.lock
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# IDE specific
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# OS generated files
+.AppleDouble
+.LSOverride
+._*
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# Backups
+*.bak
+*.backup
+*~
+
+# Distribution
+build/
+dist/
+*.tar.gz
+*.zip
