@@ -3,6 +3,8 @@ Configuration settings for the application
 Uses environment variables for secure configuration
 """
 
+import os
+
 from pydantic_settings import BaseSettings
 from typing import List
 
@@ -21,6 +23,8 @@ class Settings(BaseSettings):
     TAVILY_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     RESEND_API_KEY: str = ""
+    XAI_API_KEY: str = os.getenv("XAI_API_KEY", "")    
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     
     # Application
     FRONTEND_URL: str = "http://localhost:3000"

@@ -3,9 +3,6 @@ TAVILY_HEADERS = {
     "Content-Type": "application/json"
 }
 
-# Supported models for Anthropic
-ANTHROPIC_MODEL = "claude-3-sonnet-20240229"
-
 # Email templates
 EMAIL_TEMPLATES = {
     "outreach": """Hi {name},

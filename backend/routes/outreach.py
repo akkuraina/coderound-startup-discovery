@@ -10,7 +10,7 @@ from database import get_db
 from models import User, Company, Outreach
 from schemas import OutreachResponse, OutreachCreate, OutreachUpdate, OutreachGenerateEmailRequest
 from utils.auth import decode_token
-from services import anthropic, resend
+from services import groq_enricher as anthropic, resend
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

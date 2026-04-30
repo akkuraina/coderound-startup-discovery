@@ -1,54 +1,61 @@
 # CodeRound Startup Discovery Radar
 
-**Automated discovery system for recently funded startups actively hiring in tech roles.**
+**An automated system that discovers startups that raised funding in the last 30 days and are actively hiring.**
 
-A full-stack application that identifies startups that have raised funding in the last 30 days and are actively hiring, enabling CodeRound to reach out with recruitment services at the perfect time.
+A production-ready full-stack application for finding recently-funded startups and automating outreach with intelligent data extraction and email generation.
 
 ## 🎯 Overview
 
 CodeRound Startup Discovery Radar automates the process of:
 
-- Discovering startups with recent seed funding
-- Identifying companies actively hiring in tech roles
-- Enriching company data with website, LinkedIn profiles, and decision-makers
-- Generating personalized outreach emails
-- Tracking engagement and responses
+- **Discovering** startups with recent seed funding (Tavily web search)
+- **Parsing** company data using regex and pattern matching
+- **Identifying** companies actively hiring in tech roles
+- **Generating** personalized outreach emails (with fallback templates)
+- **Tracking** engagement and responses in real-time
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────────┐
 │   Next.js Frontend  │
-│  (Dashboard, Auth,  │
-│   Results, Outreach)│
+│  • TypeScript       │
+│  • TailwindCSS      │
+│  • Safe JSON parsing│
 └──────────┬──────────┘
-           │ REST API
+           │ REST API (JSON)
 ┌──────────▼──────────┐
 │  FastAPI Backend    │
-│  (Routes, Services, │
-│   Database Layer)   │
+│  • Python async     │
+│  • Pydantic models  │
+│  • SQLAlchemy ORM   │
 └──────────┬──────────┘
            │ SQL
 ┌──────────▼──────────┐
 │   MySQL Database    │
-│  (Users, Companies, │
-│   Outreach Logs)    │
+│  • Users table      │
+│  • Companies table  │
+│  • Outreach logs    │
 └─────────────────────┘
 
 External APIs:
 ├─ Tavily (Web Search)
-├─ Anthropic (AI Enrichment)
 └─ Resend (Email Service)
+
+Note: Anthropic bypassed (credit issues)
+Use direct parsing + fallback templates
 ```
 
 ## 📋 Tech Stack
 
-- **Frontend**: Next.js 14+ with TailwindCSS
-- **Backend**: FastAPI (Python)
-- **Database**: MySQL 8.0+
-- **APIs**: Tavily, Anthropic, Resend
-- **Auth**: JWT-based authentication
-- **Deployment**: (Docker setup TBD)
+| Layer    | Technology                                    |
+| -------- | --------------------------------------------- |
+| Frontend | Next.js 14, React 18, TypeScript, TailwindCSS |
+| Backend  | FastAPI, Python 3.9+, SQLAlchemy              |
+| Database | MySQL 8.0+, JSON fields                       |
+| Auth     | JWT tokens, bcrypt password hashing           |
+| APIs     | Tavily (search)                               |
+| Email    | Resend service                                |
 
 ## 🚀 Quick Start
 
@@ -57,52 +64,30 @@ External APIs:
 - Node.js 18+
 - Python 3.9+
 - MySQL 8.0+
-- API Keys: Tavily, Anthropic, Resend
+- API Keys: [Tavily](https://tavily.com), [Resend](https://resend.com)
 
-### Installation
+### 5-Minute Setup
 
-**Clone & Navigate**
+See [QUICKSTART.md](QUICKSTART.md) for step-by-step guide.
 
-```bash
-git clone <repo-url>
-cd coderound-startup-discovery
-```
-
-**Backend Setup**
+**Or manual setup:**
 
 ```bash
+# Backend
 cd backend
-python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Mac/Linux
-
+python -m venv venv && venv\Scripts\activate
 pip install -r requirements.txt
-
-# Configure .env
-cp .env.example .env
-# Update with your credentials
-
-# Initialize database
-python -m alembic upgrade head
-
-# Run server
+cp .env.example .env  # Add API keys
 uvicorn main:app --reload
-```
 
-**Frontend Setup**
-
-```bash
+# Frontend (new terminal)
 cd frontend
 npm install
-
-# Configure .env.local
 cp .env.example .env.local
-# Update with backend URL
-
 npm run dev
 ```
 
-Access the application at `http://localhost:3000`
+Visit `http://localhost:3000` 🎉
 
 ## � Project Structure
 
