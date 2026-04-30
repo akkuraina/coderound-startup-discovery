@@ -32,41 +32,37 @@ async def search_with_retry():
 
 ---
 
-### Anthropic API
+### Groq API
 
-**Free Trial:**
+**Free Tier:**
 
-- $5 credit (usually lasts 3 months)
-- Rate limit: 10 RPM (requests per minute)
-- Tokens: Up to 200K tokens/month
+- Rate limit: 30 requests per minute (RPM)
+- No credit limit for free tier
+- Good for development and testing
 
 **Paid Plan:**
 
 - Pay-as-you-go pricing
-- Rate limits scale with plan
-- Claude 3 Sonnet: ~$3/1M input tokens, $15/1M output tokens
-
-**Current Model:** claude-3-sonnet-20240229
+- Scales with usage
+- Groq Mixtral 8x7B: ~$0.27/1M tokens (input), ~$0.81/1M tokens (output)
 
 **Optimization Tips:**
 
 ```python
-# Batch requests when possible
-# Limit input length (first 1000 chars usually sufficient)
-text_to_analyze = search_results[:1000]
-
-# Cache frequently used prompts
+# Groq is very fast, minimal optimization needed
+# Use for quick email generation
+# Batch requests for better throughput
 ```
 
 **Cost Estimation:**
 
-- Per company analysis: ~500 tokens input, 300 tokens output
-- At $3/$15 per 1M tokens:
-  - Input cost: ~$0.0015 per company
-  - Output cost: ~$0.0045 per company
-  - Total: ~$0.006 per company
+- Per company email: ~200 tokens input, 150 tokens output
+- At $0.27/$0.81 per 1M tokens:
+  - Input cost: ~$0.000054 per company
+  - Output cost: ~$0.000122 per company
+  - Total: ~$0.00018 per company (much cheaper than Anthropic)
 
-**Documentation:** https://docs.anthropic.com/
+**Documentation:** https://groq.com/openrouter-docs/
 
 ---
 
@@ -88,20 +84,25 @@ text_to_analyze = search_results[:1000]
 - 100 requests/day (free)
 - 1000 requests/day (pro)
 
-**Requirements:**
+**Requirements & Configuration:**
 
-- Verified domain (for production)
-- Can use default `emails.resend.dev` for testing
-
-**Configuration:**
+For **development**, use Resend's test email (no verification needed):
 
 ```python
-# Test email without verification
-FROM_EMAIL = "onboarding@resend.dev"  # Testing
+FROM_EMAIL = "onboarding@resend.dev"  # Testing - works out-of-the-box
+```
+
+For **production**, verify your custom domain:
+
+```python
+FROM_EMAIL = "noreply@yourdomain.com"  # Production - requires domain verification
+```
 
 # Production (with verification)
+
 FROM_EMAIL = "noreply@yourdomain.com"
-```
+
+````
 
 **Email Deliverability:**
 
@@ -117,21 +118,21 @@ FROM_EMAIL = "noreply@yourdomain.com"
 
 ### Scenario: 100 Startups Per Month
 
-| API       | Calls   | Cost             |
-| --------- | ------- | ---------------- |
-| Tavily    | 2-3     | $0 (free tier)   |
-| Anthropic | ~100    | ~$0.60           |
-| Resend    | ~50-100 | $0 (free tier)   |
-| **Total** | -       | **~$0.60/month** |
+| API    | Calls   | Cost             |
+| ------ | ------- | ---------------- |
+| Tavily | 2-3     | $0 (free tier)   |
+| Groq   | ~100    | ~$0.02           |
+| Resend | ~50-100 | $0 (free tier)   |
+| **Total** | -       | **~$0.02/month** |
 
 ### Scenario: 1000 Startups Per Month
 
-| API       | Calls     | Cost              |
-| --------- | --------- | ----------------- |
-| Tavily    | 2-3       | $10 (pro tier)    |
-| Anthropic | ~1000     | ~$6.00            |
-| Resend    | ~500-1000 | ~$0.25            |
-| **Total** | -         | **~$16.25/month** |
+| API    | Calls     | Cost              |
+| ------ | --------- | ----------------- |
+| Tavily | 2-3       | $10 (pro tier)    |
+| Groq   | ~1000     | ~$0.18            |
+| Resend | ~500-1000 | ~$0.25            |
+| **Total** | -         | **~$10.43/month** |
 
 ---
 
@@ -149,7 +150,7 @@ limiter = Limiter(key_func=get_remote_address)
 @limiter.limit("5/hour")
 async def discover_startups():
     # Only 5 discovery requests per hour per IP
-```
+````
 
 ### Recommended Limits
 

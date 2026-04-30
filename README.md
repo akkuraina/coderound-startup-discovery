@@ -1,6 +1,6 @@
 # CodeRound Startup Discovery Radar
 
-**An automated system that discovers startups that raised funding in the last 30 days and are actively hiring.**
+**An automated system that discovers startups that raised funding in the last 30 days and are actively hiring, and automates outreach.**
 
 A production-ready full-stack application for finding recently-funded startups and automating outreach with intelligent data extraction and email generation.
 
@@ -40,10 +40,11 @@ CodeRound Startup Discovery Radar automates the process of:
 
 External APIs:
 ├─ Tavily (Web Search)
+├─ Groq (AI Enrichment and Email Generation)
 └─ Resend (Email Service)
 
-Note: Anthropic bypassed (credit issues)
-Use direct parsing + fallback templates
+Note: Uses Groq for AI features and Resend test email
+(onboarding@resend.dev) for development
 ```
 
 ## 📋 Tech Stack
@@ -54,8 +55,8 @@ Use direct parsing + fallback templates
 | Backend  | FastAPI, Python 3.9+, SQLAlchemy              |
 | Database | MySQL 8.0+, JSON fields                       |
 | Auth     | JWT tokens, bcrypt password hashing           |
-| APIs     | Tavily (search)                               |
-| Email    | Resend service                                |
+| APIs     | Tavily (search), Groq (AI), Resend (email)    |
+| Email    | Resend (test: onboarding@resend.dev)          |
 
 ## 🚀 Quick Start
 
@@ -64,7 +65,7 @@ Use direct parsing + fallback templates
 - Node.js 18+
 - Python 3.9+
 - MySQL 8.0+
-- API Keys: [Tavily](https://tavily.com), [Resend](https://resend.com)
+- API Keys: [Tavily](https://tavily.com), [Groq](https://groq.com), [Resend](https://resend.com)
 
 ### 5-Minute Setup
 
@@ -215,12 +216,19 @@ JWT_SECRET_KEY=your-secret-key-here
 JWT_ALGORITHM=HS256
 
 TAVILY_API_KEY=your-tavily-key
-ANTHROPIC_API_KEY=your-anthropic-key
+GROQ_API_KEY=your-groq-key
 RESEND_API_KEY=your-resend-key
 
 FRONTEND_URL=http://localhost:3000
 CORS_ORIGINS=["http://localhost:3000"]
+
+# Email Configuration
+FROM_EMAIL=onboarding@resend.dev
+ADMIN_EMAIL=admin@coderound.ai
 ```
+
+**Note:** `FROM_EMAIL=onboarding@resend.dev` is Resend's test email for development.
+For production, verify your domain and use your own sender email.
 
 ### Frontend (.env.local)
 

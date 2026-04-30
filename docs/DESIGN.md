@@ -71,8 +71,8 @@
     ┌────┴────┬─────────┬──────────┐
     │          │         │          │
     ▼          ▼         ▼          ▼
-  MySQL    Tavily    Anthropic   Resend
-(Database) (Search)  (AI)         (Email)
+  MySQL    Tavily     Groq      Resend
+(Database) (Search)  (AI)        (Email)
 ```
 
 ---
@@ -147,7 +147,7 @@ else:
 
 ```python
 # services/tavily.py
-# services/anthropic.py
+# services/groq_enricher.py
 # services/resend.py
 ```
 
@@ -168,7 +168,7 @@ async def generate_outreach_email(
     funding_info: dict,
     hiring_status: int
 ) -> str:
-    # Uses Anthropic to generate personalized email
+    # Uses Groq to generate personalized email
     # Falls back to default template if API fails
 ```
 
@@ -176,7 +176,7 @@ async def generate_outreach_email(
 
 - ✅ Personalized for each company
 - ✅ Better open/response rates
-- ⚠️ Requires valid API key
+- ✅ Groq provides fast, affordable AI
 - 🔄 Can batch-generate for performance
 
 ### 6. Data Enrichment Pipeline
@@ -186,9 +186,9 @@ async def generate_outreach_email(
 ```
 Raw Search Results
        ↓
-Anthropic Extract (company info)
+Groq Extract (company info)
        ↓
-Anthropic Analyze (hiring status)
+Groq Analyze (hiring status)
        ↓
 Store in MySQL
        ↓

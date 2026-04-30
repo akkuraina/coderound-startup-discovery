@@ -43,7 +43,7 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 
 # Create .env file (copy from .env.example)
-# Add your API keys for Tavily, Anthropic, Resend
+# Add your API keys for Tavily, Groq, Resend
 
 # Run backend
 uvicorn main:app --reload
@@ -76,7 +76,7 @@ npm run dev
 3. Create an account
 4. You're in the dashboard!
 5. Click "Discover Startups" button
-6. Results will appear (powered by Tavily + Anthropic)
+6. Results will appear (powered by Tavily + Groq)
 7. Click "Reach Out" on any company
 8. Generate email with AI + send via Resend
 
@@ -105,8 +105,8 @@ You now have a fully functional startup discovery system running locally.
 
 **"API key error"**
 
-- Add your Tavily, Anthropic, Resend keys to backend/.env
-- Get them from: tavily.com, anthropic.com, resend.com
+- Add your Tavily, Groq, Resend keys to backend/.env
+- Get them from: tavily.com, groq.com, resend.com
 
 ---
 

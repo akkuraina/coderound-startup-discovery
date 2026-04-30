@@ -10,7 +10,7 @@ Before you begin, ensure you have:
 - **Git** (version control)
 - API Keys:
   - Tavily API key ([sign up](https://tavily.com))
-  - Groq API key 
+  - Groq API key ([sign up](https://groq.com))
   - Resend API key ([sign up](https://resend.com))
 
 ---
@@ -93,7 +93,7 @@ JWT_EXPIRATION_HOURS=24
 
 # APIs
 TAVILY_API_KEY=your_tavily_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
+GROQ_API_KEY=your_groq_api_key
 RESEND_API_KEY=your_resend_api_key
 
 # Application
@@ -101,9 +101,10 @@ FRONTEND_URL=http://localhost:3000
 BACKEND_URL=http://localhost:8000
 ENVIRONMENT=development
 
-# Email
-FROM_EMAIL=noreply@coderound.ai
+# Email (use test email for development)
+FROM_EMAIL=onboarding@resend.dev
 ADMIN_EMAIL=admin@coderound.ai
+TO_EMAIL=your-test-email@gmail.com
 ```
 
 ### 3.4 Verify Database Connection
@@ -196,20 +197,34 @@ curl http://localhost:8000/health
 4. Copy your API key
 5. Paste into `backend/.env`: `TAVILY_API_KEY=...`
 
-### Getting Anthropic API Key
+### Getting Groq API Key
 
-1. Go to [console.anthropic.com](https://console.anthropic.com)
-2. Sign up or log in
-3. Create a new API key
-4. Paste into `backend/.env`: `ANTHROPIC_API_KEY=...`
+1. Go to [groq.com](https://groq.com)
+2. Sign up for a free account
+3. Navigate to API settings
+4. Create a new API key
+5. Paste into `backend/.env`: `GROQ_API_KEY=...`
 
 ### Getting Resend API Key
 
 1. Go to [resend.com](https://resend.com)
 2. Sign up for a free account
-3. Verify your domain (for production)
-4. Get your API key from settings
-5. Paste into `backend/.env`: `RESEND_API_KEY=...`
+3. Get your API key from settings
+4. Paste into `backend/.env`: `RESEND_API_KEY=...`
+
+**Email Configuration:**
+
+For **development**, use Resend's test email:
+
+```
+FROM_EMAIL=onboarding@resend.dev
+```
+
+For **production**, verify your custom domain and update:
+
+```
+FROM_EMAIL=noreply@yourdomain.com
+```
 
 ---
 

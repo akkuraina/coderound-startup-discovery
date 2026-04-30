@@ -24,9 +24,9 @@ A complete, production-ready full-stack application with:
 
 - ✅ Signup endpoint (user creation + JWT)
 - ✅ Login endpoint (authentication)
-- ✅ Discovery endpoint (Tavily + Anthropic integration)
+- ✅ Discovery endpoint (Tavily + Groq integration)
 - ✅ Companies endpoints (list, filter, get by ID)
-- ✅ Email generation (AI-powered with Anthropic)
+- ✅ Email generation (AI-powered with Groq)
 - ✅ Email sending (Resend API integration)
 - ✅ Outreach tracking (history + status updates)
 - ✅ JWT authentication (all endpoints protected)
@@ -47,8 +47,8 @@ A complete, production-ready full-stack application with:
 ### **Services Integration**
 
 - ✅ Tavily API (web search for funding news)
-- ✅ Anthropic API (AI data extraction + hiring analysis)
-- ✅ Resend API (email delivery)
+- ✅ Groq API (AI email generation + text processing)
+- ✅ Resend API (email delivery with test email: onboarding@resend.dev)
 
 ### **Documentation**
 
@@ -104,7 +104,7 @@ coderound-startup-discovery/
 │   ├── services/
 │   │   ├── __init__.py               # Service init
 │   │   ├── tavily.py                 # Tavily integration
-│   │   ├── anthropic.py              # Anthropic integration
+│   │   ├── groq_enricher.py          # Groq integration
 │   │   └── resend.py                 # Email service
 │   ├── utils/
 │   │   ├── auth.py                   # JWT utilities
@@ -145,14 +145,14 @@ coderound-startup-discovery/
 ### Startup Discovery
 
 - ✅ Automated Tavily web search
-- ✅ AI-powered data extraction (Anthropic)
+- ✅ AI-powered email generation (Groq)
 - ✅ Hiring status analysis
 - ✅ Duplicate detection
 - ✅ Data enrichment (investors, links, etc.)
 
 ### Outreach Management
 
-- ✅ AI email generation (Anthropic Claude)
+- ✅ AI email generation (Groq Mixtral)
 - ✅ Email customization by user
 - ✅ Email sending via Resend
 - ✅ Response tracking (positive/negative/pending)
@@ -186,8 +186,8 @@ coderound-startup-discovery/
 2. **Sign up** with any email/password
 3. **Click "Discover Startups"** to:
    - Search recent funding news (Tavily)
-   - Extract company details (Anthropic)
-   - Identify hiring status (Anthropic)
+   - Extract company details (Groq)
+   - Identify hiring status (Groq)
    - Store in database (MySQL)
 4. **View results** with:
    - Company details
@@ -196,7 +196,7 @@ coderound-startup-discovery/
    - Links to website/LinkedIn
 5. **Send outreach emails**:
    - Click "Reach Out"
-   - Generate personalized email (Anthropic)
+   - Generate personalized email (Groq)
    - Edit if needed
    - Send via Resend
 6. **Track responses**:
