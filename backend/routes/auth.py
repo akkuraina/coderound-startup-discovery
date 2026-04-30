@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 import logging
-
 from database import get_db
 from models import User
 from schemas import UserCreate, UserLogin, UserResponse, Token

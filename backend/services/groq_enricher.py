@@ -1,27 +1,12 @@
-"""
-Groq API client for data enrichment.
-FREE tier — sign up at https://console.groq.com (no credit card needed)
-Install: pip install groq
-Add GROQ_API_KEY to your .env
-
-Optimized for free tier: single API call per company extracts everything.
-"""
-
 import json
 import logging
 import re
-import asyncio
-from typing import Dict, Any, List
-
+from typing import Dict, Any
 from groq import Groq
 from config import settings
 
 logger = logging.getLogger(__name__)
 
-
-# ---------------------------------------------------------------------------
-# Validation helpers — shared with companies.py
-# ---------------------------------------------------------------------------
 
 _NEWS_SITES = {
     "techcrunch", "alleywatch", "vc news daily", "crunchbase", "forbes",
@@ -55,11 +40,6 @@ def _is_invalid_company_name(name: str) -> bool:
     if any(phrase in n for phrase in _TITLE_PHRASES):
         return True
     return False
-
-
-# ---------------------------------------------------------------------------
-# Groq client
-# ---------------------------------------------------------------------------
 
 class GroqEnricher:
     MODEL = "llama-3.1-8b-instant"

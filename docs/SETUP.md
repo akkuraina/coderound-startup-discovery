@@ -10,7 +10,7 @@ Before you begin, ensure you have:
 - **Git** (version control)
 - API Keys:
   - Tavily API key ([sign up](https://tavily.com))
-  - Anthropic API key ([sign up](https://console.anthropic.com))
+  - Groq API key 
   - Resend API key ([sign up](https://resend.com))
 
 ---

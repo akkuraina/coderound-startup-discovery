@@ -1,16 +1,7 @@
-"""
-Pydantic schemas for request/response validation
-"""
-
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List, Any
 import json
-
-
-# ---------------------------------------------------------------------------
-# User Schemas
-# ---------------------------------------------------------------------------
 
 class UserBase(BaseModel):
     email: EmailStr

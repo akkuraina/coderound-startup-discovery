@@ -1,5 +1,4 @@
 import httpx
-import json
 import logging
 from typing import Dict, Any
 from config import settings
@@ -42,12 +41,17 @@ class EmailService:
                 "Content-Type": "application/json"
             }
             
+            logger.info(f"Sending email from {self.from_email} to {to} with subject: {subject}")
+            
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(
                     f"{self.BASE_URL}/emails",
                     json=payload,
                     headers=headers
                 )
+                
+                logger.info(f"Resend API response status: {response.status_code}")
+                logger.info(f"Resend API response: {response.text}")
                 
                 if response.status_code in [200, 201]:
                     data = response.json()

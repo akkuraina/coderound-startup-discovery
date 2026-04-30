@@ -1,10 +1,4 @@
-"""
-Configuration settings for the application
-Uses environment variables for secure configuration
-"""
-
 import os
-
 from pydantic_settings import BaseSettings
 from typing import List
 
@@ -21,11 +15,9 @@ class Settings(BaseSettings):
     
     # External APIs
     TAVILY_API_KEY: str = ""
-    ANTHROPIC_API_KEY: str = ""
     RESEND_API_KEY: str = ""
-    XAI_API_KEY: str = os.getenv("XAI_API_KEY", "")    
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    
+
     # Application
     FRONTEND_URL: str = "http://localhost:3000"
     BACKEND_URL: str = "http://localhost:8000"
@@ -36,7 +28,8 @@ class Settings(BaseSettings):
     
     # Email
     ADMIN_EMAIL: str = "admin@coderound.ai"
-    FROM_EMAIL: str = "noreply@coderound.ai"
+    FROM_EMAIL: str = "onboarding@resend.dev"
+    TO_EMAIL: str = "test@example.com"
     
     # Logging
     LOG_LEVEL: str = "INFO"

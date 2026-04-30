@@ -1,8 +1,3 @@
-"""
-Database schema for MySQL
-Run this script to initialize the database
-"""
-
 CREATE DATABASE IF NOT EXISTS coderound_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE coderound_db;
 
@@ -71,6 +66,3 @@ CREATE INDEX idx_companies_name ON companies(name);
 CREATE INDEX idx_companies_funding_date ON companies(funding_date);
 CREATE INDEX idx_outreach_user_company ON outreach(user_id, company_id);
 
--- Sample data (optional - remove in production)
--- INSERT INTO users (email, password_hash, name) VALUES
--- ('demo@coderound.ai', '$2b$12$demo...hash...', 'Demo User');

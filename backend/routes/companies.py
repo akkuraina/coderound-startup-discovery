@@ -6,7 +6,6 @@ import logging
 import re
 import asyncio
 from typing import List, Dict, Any, Optional
-
 from database import get_db
 from models import User, Company
 from schemas import CompanyResponse, DiscoveryResult
@@ -18,16 +17,9 @@ from services.groq_enricher import _is_invalid_company_name
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# Delay between Groq calls (seconds). 
-# Free tier = 30 req/min = 1 req per 2s to stay safe.
+
 GROQ_RATE_LIMIT_DELAY = 2.0
 
-
-# ---------------------------------------------------------------------------
-# Regex pre-parser + pre-filter (zero API cost)
-# ---------------------------------------------------------------------------
-
-# URLs/domains that are aggregator sites — skip entirely before calling Groq
 _SKIP_DOMAINS = {
     "vcbacked", "vcback", "topstartups.io", "yutori", "seedtable",
     "growthlists", "tracxn", "crunchbase", "pitchbook", "fundraiseinsider",
@@ -104,9 +96,6 @@ def parse_tavily_result(result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         return None
 
 
-# ---------------------------------------------------------------------------
-# Auth helper
-# ---------------------------------------------------------------------------
 
 async def get_current_user(token: str = None, db: Session = Depends(get_db)):
     if not token:
@@ -120,9 +109,6 @@ async def get_current_user(token: str = None, db: Session = Depends(get_db)):
     return user
 
 
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 
 @router.post("/discover", response_model=DiscoveryResult)
 async def discover_startups(token: str = Query(...), db: Session = Depends(get_db)):
