@@ -74,6 +74,7 @@ class Company(Base):
     _investors = Column("investors", Text, nullable=True)
     _hiring_positions = Column("hiring_positions", Text, nullable=True)
 
+    sector = Column(String(100), nullable=True, index=True)  # e.g., "Software", "AI/ML", "Fintech"
     country = Column(String(100), nullable=True)
     description = Column(Text, nullable=True)
 
@@ -88,6 +89,7 @@ class Company(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_enriched = Column(DateTime, nullable=True)
+    discovered_at = Column(DateTime, default=datetime.utcnow)  # First discovery timestamp
 
     outreaches = relationship("Outreach", back_populates="company", cascade="all, delete-orphan")
 

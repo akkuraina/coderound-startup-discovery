@@ -23,15 +23,16 @@ _TITLE_PHRASES = [
     "technology startups", "news daily", "report:", "recap:", "update –",
     "latest funding", "verified funding", "seed startups", "funded startups",
     "silicon valley startup", "startup funding", "recently funded",
+    "best startups with", "startups with recent funding",
+    "funding rounds &", "funding and investors",
 ]
 
 
 def _is_invalid_company_name(name: str) -> bool:
-    """Return True if the name looks like a news site or article title."""
     if not name:
         return True
     n = name.lower().strip()
-    if len(n) > 60:
+    if len(n) > 50:
         return True
     if re.search(r'\b\d{1,2}\s+(largest|biggest|top|best)', n):
         return True
@@ -40,6 +41,7 @@ def _is_invalid_company_name(name: str) -> bool:
     if any(phrase in n for phrase in _TITLE_PHRASES):
         return True
     return False
+
 
 class GroqEnricher:
     MODEL = "llama-3.1-8b-instant"
@@ -73,37 +75,49 @@ class GroqEnricher:
 
     async def enrich_company(self, text: str) -> Dict[str, Any]:
         """
-        ONE call that extracts company info AND hiring status together.
-        Halves API usage vs calling extract + hiring separately.
-        Returns merged dict with all fields needed by companies.py
+        Single Groq call: extracts funding info + hiring status from article text.
+        company_description is intentionally left to a separate company-search call.
         """
         try:
             prompt = f"""Extract startup funding information from the text below. Return ONLY valid JSON.
 
-RULES:
-- company_name: the STARTUP name that received funding (NOT a news site, NOT an article title)
-- If text is about a news aggregator or list article with no single primary startup, set company_name to null
-- hiring_status: 0=not hiring, 1=potentially hiring (scaling/growing mentioned), 2=actively hiring (job postings/open roles mentioned)
+STRICT RULES FOR URLS:
+- website: ONLY include if you find a clear, clean URL like https://example.com or www.example.com
+  DO NOT include news sites, aggregators, broken URLs, or partial URLs
+  Only extract the main domain (remove /about /jobs etc paths)
+  If unclear, set to null
+- linkedin_url: ONLY if you find https://linkedin.com/company/[name] pattern. Null otherwise.
+
+OTHER RULES:
+- company_name: the STARTUP that received funding (NOT a news site, NOT an article title)
+- If text covers multiple companies or is a list article, set company_name to null
+- founder_name: Extract founder name if explicitly mentioned. Null if not found.
+- hiring_status: 0=not hiring, 1=potentially hiring (scaling/growing), 2=actively hiring (job postings mentioned)
+- sector: Primary industry (e.g. "AI/ML", "Fintech", "SaaS", "Biotech", "Climate Tech")
+- Investors: NAMES ONLY, no titles
 
 Text:
 {text[:2000]}
 
-JSON (no markdown, no explanation):
+JSON only, no markdown:
 {{
     "company_name": "startup name or null",
-    "funding_amount": <number in USD e.g. 5000000, or null>,
-    "funding_round": "Seed or Pre-Seed or Series A or Series B etc, or null",
-    "investors": ["investor 1", "investor 2"],
-    "lead_investor": "name or null",
+    "founder_name": "founder full name or null",
+    "funding_amount": <USD number e.g. 5000000, or null>,
+    "funding_round": "Seed/Pre-Seed/Series A/Series B/etc or null",
+    "investors": ["Name 1", "Name 2"],
+    "lead_investor": "Name or null",
+    "sector": "industry/sector or null",
+    "website": "https://example.com or null",
+    "linkedin_url": "https://linkedin.com/company/name or null",
     "country": "country name or null",
     "hiring_status": <0, 1, or 2>,
     "hiring_positions": ["role 1", "role 2"]
 }}"""
 
-            raw = self._chat(prompt, max_tokens=400)
+            raw = self._chat(prompt, max_tokens=450)
             result = self._extract_json(raw)
 
-            # Validate company name
             name = result.get("company_name")
             if name and _is_invalid_company_name(name):
                 logger.warning(f"Groq returned bad company name, nulling: '{name}'")
@@ -112,15 +126,49 @@ JSON (no markdown, no explanation):
             if result.get("company_name"):
                 logger.info(
                     f"Groq extracted: {result['company_name']} | "
-                    f"{result.get('funding_round')} | "
-                    f"${result.get('funding_amount')} | "
-                    f"hiring={result.get('hiring_status')}"
+                    f"Founder: {result.get('founder_name', 'N/A')} | "
+                    f"{result.get('funding_round')} | ${result.get('funding_amount')} | "
+                    f"sector={result.get('sector')} | hiring={result.get('hiring_status')}"
                 )
             return result
 
         except Exception as e:
-            logger.error(f"Groq enrich_company error: {e}")
+            logger.error(f"Groq enrich_company error: {e}", exc_info=True)
             return {}
+
+    async def extract_company_description(
+        self, company_name: str, company_search_text: str
+    ) -> str:
+        """
+        Given search results from the company's own website/LinkedIn,
+        extract a clean 1-2 sentence description of what the company does.
+        This is separate from enrich_company to keep each call focused.
+        """
+        try:
+            prompt = f"""Based on the search results below about the company "{company_name}", 
+write a concise 1-2 sentence description of what this company does.
+
+Rules:
+- Describe the product/service and target customer
+- Do NOT mention funding, investors, or financial info
+- Do NOT copy boilerplate marketing text verbatim
+- Be specific, not generic (avoid "innovative solutions" type language)
+- If you cannot determine what the company does, return null
+
+Search results:
+{company_search_text[:1500]}
+
+Return ONLY valid JSON:
+{{"description": "1-2 sentence description or null"}}"""
+
+            raw = self._chat(prompt, max_tokens=200)
+            result = self._extract_json(raw)
+            desc = result.get("description") or ""
+            return desc.strip()
+
+        except Exception as e:
+            logger.error(f"Groq extract_company_description error for {company_name}: {e}")
+            return ""
 
     async def generate_outreach_email(
         self,
@@ -128,7 +176,6 @@ JSON (no markdown, no explanation):
         funding_info: Dict[str, Any],
         hiring_status: int,
     ) -> str:
-        """Generate a personalised outreach email."""
         try:
             hiring_context = {
                 0: "has recently received funding",
@@ -155,8 +202,7 @@ Requirements:
 - Acknowledge their funding milestone
 - Briefly explain CodeRound's value
 - Soft CTA: 15-minute intro call
-- 150-180 words
-- Email body only, no subject line"""
+- 150-180 words, email body only"""
 
             email = self._chat(prompt, max_tokens=350)
             return email.strip() if email else self._fallback_email(company_name)
@@ -180,29 +226,62 @@ Looking forward to hearing from you.
 Best,
 CodeRound AI Team"""
 
+    async def extract_decision_makers(self, company_name: str, company_info: str) -> Dict[str, Any]:
+        try:
+            prompt = f"""Extract key decision makers from this company information.
+
+STRICT RULES:
+- name: FULL NAME ONLY, no titles
+- title: Job title ONLY (CEO/Founder/CTO etc), no company names
+- linkedin_url: ONLY https://linkedin.com/in/[username] pattern. Null otherwise.
+
+Company: {company_name}
+Information:
+{company_info[:1500]}
+
+Return ONLY valid JSON:
+{{
+    "decision_makers": [
+        {{
+            "name": "Full Name",
+            "title": "CEO/Founder/CTO/etc",
+            "linkedin_url": "https://linkedin.com/in/... or null"
+        }}
+    ],
+    "confidence": 0.0-1.0
+}}"""
+
+            raw = self._chat(prompt, max_tokens=300)
+            result = self._extract_json(raw)
+
+            if result.get("decision_makers"):
+                logger.info(f"Extracted {len(result['decision_makers'])} decision makers for {company_name}")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Groq extract_decision_makers error: {e}")
+            return {"decision_makers": [], "confidence": 0.0}
+
 
 # ---------------------------------------------------------------------------
 # Module-level helpers
 # ---------------------------------------------------------------------------
 
 async def enrich_company(text: str) -> Dict[str, Any]:
-    """Single call: returns company_name, funding info, AND hiring_status."""
     return await GroqEnricher().enrich_company(text)
 
+async def extract_company_description(company_name: str, search_text: str) -> str:
+    return await GroqEnricher().extract_company_description(company_name, search_text)
 
-# Keep these for outreach.py compatibility (generate_email is used there)
 async def extract_company_info(text: str) -> Dict[str, Any]:
-    """Alias for enrich_company — use enrich_company in new code."""
     return await GroqEnricher().enrich_company(text)
-
 
 async def analyze_hiring_status(company_name: str, results: str) -> Dict[str, Any]:
-    """
-    Kept for compatibility. In new code, hiring_status comes from enrich_company.
-    This is a no-op passthrough that returns a neutral result to avoid extra API calls.
-    """
     return {"hiring_status": 0, "confidence": 0.5, "hiring_positions": []}
 
+async def extract_decision_makers(company_name: str, company_info: str) -> Dict[str, Any]:
+    return await GroqEnricher().extract_decision_makers(company_name, company_info)
 
 async def generate_email(
     company_name: str,

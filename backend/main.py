@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import logging
 from contextlib import asynccontextmanager
-
 from config import settings
 from database import engine, Base
 from routes import auth, companies, outreach

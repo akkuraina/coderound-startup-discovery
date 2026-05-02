@@ -163,7 +163,7 @@ const Landing: React.FC = () => {
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-300 py-8 mt-20">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 CodeRound AI. All rights reserved.</p>
+          <p>&copy; 2026 CodeRound AI. All rights reserved.</p>
           <p className="text-sm mt-2">Fullstack AI Recruiter for Fast Growing Startups</p>
         </div>
       </footer>

@@ -35,6 +35,7 @@ class CompanyBase(BaseModel):
     funding_amount: Optional[float] = None
     funding_date: Optional[datetime] = None
     funding_round: Optional[str] = None
+    sector: Optional[str] = None
     country: Optional[str] = None
     description: Optional[str] = None
 
@@ -53,6 +54,7 @@ class CompanyUpdate(BaseModel):
 class CompanyResponse(CompanyBase):
     id: int
     hiring_status: int = 0
+    is_tech: bool = False  # Highlight indicator for tech companies
 
     # These come back as Python lists from the model @property,
     # but validators handle the case where raw DB text leaks through.
@@ -158,6 +160,28 @@ class DiscoveryResult(BaseModel):
     total_found: int
     processed_at: datetime
     message: str
+
+
+class TechHiringHighlight(BaseModel):
+    """Highlighted result for actively hiring tech companies."""
+    company: CompanyResponse
+    relevance_score: float  # 0.0-1.0 indicating how strongly tech-focused the company is
+    
+    class Config:
+        from_attributes = True
+
+
+class TechHiringResult(BaseModel):
+    """Result for tech company hiring query."""
+    companies: List[CompanyResponse]
+    total_found: int
+    processed_at: datetime = None
+    message: str = "Actively hiring tech companies"
+
+    def __init__(self, **data):
+        if data.get("processed_at") is None:
+            data["processed_at"] = datetime.utcnow()
+        super().__init__(**data)
 
 class HealthCheck(BaseModel):
     status: str

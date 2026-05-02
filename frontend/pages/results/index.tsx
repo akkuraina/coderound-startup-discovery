@@ -12,12 +12,13 @@ import { Loader, Filter, History } from 'lucide-react';
 const Results: React.FC = () => {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [techCompanies, setTechCompanies] = useState<Company[]>([]);
   const [outreach, setOutreach] = useState<Outreach[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hiringFilter, setHiringFilter] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'discover' | 'outreach'>('discover');
+  const [activeTab, setActiveTab] = useState<'discover' | 'tech' | 'outreach'>('discover');
 
   useEffect(() => {
     if (!authUtils.isAuthenticated()) {
@@ -26,7 +27,9 @@ const Results: React.FC = () => {
     }
 
     loadData();
-  }, [hiringFilter]);
+  }, [hiringFilter, activeTab]);
+
+  const [allCompanies, setAllCompanies] = useState<Record<number, string>>({});
 
   const loadData = async () => {
     setIsLoading(true);
@@ -34,6 +37,15 @@ const Results: React.FC = () => {
       // Load companies
       const companiesData = await apiClient.getCompanies(hiringFilter);
       setCompanies(companiesData);
+
+      const allData = await apiClient.getCompanies(null); // no filter
+      setAllCompanies(Object.fromEntries(allData.map(c => [c.id, c.name])));
+
+      // Load tech companies if on tech tab
+      if (activeTab === 'tech') {
+        const techData = await apiClient.getTechHiringCompanies(0, 20);
+        setTechCompanies(techData);
+      }
 
       // Load outreach history
       const outreachData = await apiClient.getOutreachHistory(0, 100);
@@ -99,10 +111,10 @@ const Results: React.FC = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b">
+        <div className="flex gap-4 mb-8 border-b overflow-x-auto">
           <button
             onClick={() => setActiveTab('discover')}
-            className={`px-6 py-3 font-semibold transition border-b-2 ${
+            className={`px-6 py-3 font-semibold transition border-b-2 whitespace-nowrap ${
               activeTab === 'discover'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-gray-600 hover:text-gray-800'
@@ -110,12 +122,25 @@ const Results: React.FC = () => {
           >
             <span className="flex items-center gap-2">
               <Filter size={18} />
-              Discovered Startups ({companies.length})
+              Discovered ({companies.length})
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('tech')}
+            className={`px-6 py-3 font-semibold transition border-b-2 whitespace-nowrap ${
+              activeTab === 'tech'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-lg">⚡</span>
+              Tech Hiring ({techCompanies.length})
             </span>
           </button>
           <button
             onClick={() => setActiveTab('outreach')}
-            className={`px-6 py-3 font-semibold transition border-b-2 ${
+            className={`px-6 py-3 font-semibold transition border-b-2 whitespace-nowrap ${
               activeTab === 'outreach'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-gray-600 hover:text-gray-800'
@@ -123,7 +148,7 @@ const Results: React.FC = () => {
           >
             <span className="flex items-center gap-2">
               <History size={18} />
-              Outreach History ({outreach.length})
+              Outreach ({outreach.length})
             </span>
           </button>
         </div>
@@ -207,6 +232,48 @@ const Results: React.FC = () => {
           </>
         )}
 
+        {/* Tech Hiring Tab */}
+        {activeTab === 'tech' && (
+          <>
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+              <h2 className="font-bold text-lg text-purple-900 mb-2">⚡ Tech Companies Actively Hiring</h2>
+              <p className="text-sm text-purple-700">
+                Handpicked technology startups that are actively hiring. These companies are focused on software, AI/ML, fintech, and other tech sectors with open positions.
+              </p>
+            </div>
+
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader className="animate-spin mr-2" size={24} />
+                <span>Loading tech companies...</span>
+              </div>
+            ) : techCompanies.length === 0 ? (
+              <div className="text-center py-12 glass-effect rounded-lg">
+                <p className="text-gray-600 text-lg mb-4">
+                  No tech companies actively hiring at the moment.
+                </p>
+                <button
+                  onClick={() => setActiveTab('discover')}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+                >
+                  Browse All Startups
+                </button>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {techCompanies.map((company) => (
+                  <ResultsCard
+                    key={company.id}
+                    company={company}
+                    onOutreach={handleOutreach}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
         {/* Outreach History Tab */}
         {activeTab === 'outreach' && (
           <>
@@ -234,8 +301,7 @@ const Results: React.FC = () => {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-bold text-lg">
-                          {companies.find((c) => c.id === item.company_id)?.name ||
-                            'Unknown Company'}
+                          {allCompanies[item.company_id] || 'Unknown Company'}
                         </h3>
                         <p className="text-sm text-gray-500">{item.email_sent_to}</p>
                       </div>

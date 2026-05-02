@@ -16,13 +16,23 @@ export interface Company {
   funding_amount?: number;
   funding_date?: string;
   funding_round?: string;
+  sector?: string; // e.g., "AI/ML", "Fintech", "Climate Tech"
+  is_tech: boolean; // Indicates if company is tech-focused
   investors?: string;
   country?: string;
   description?: string;
   hiring_status: number; // 0=not_hiring, 1=potentially, 2=actively
   hiring_positions?: string;
   enriched_data?: Record<string, any>;
-  decision_makers?: Record<string, any>;
+  decision_makers?: {
+    decision_makers?: Array<{
+      name: string;
+      title: string;
+      linkedin_url?: string;
+    }>;
+    confidence?: number;
+    enriched_at?: string;
+  };
   created_at: string;
   updated_at: string;
   last_enriched?: string;
